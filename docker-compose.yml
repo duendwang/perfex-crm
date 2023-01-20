@@ -1,0 +1,73 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    expose:
+      - 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Missing MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: perfex
+      MYSQL_USER: perfex
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Missing MYSQL_PASSWORD}
+    networks:
+      - network
+    volumes:
+      - ./data:/var/lib/mysql
+    command: --authentication-policy=mysql_native_password
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=\"${MYSQL_ROOT_PASSWORD}\" --execute \"SHOW DATABASES;\""
+      interval: 5s
+      timeout: 300s
+      retries: 60
+  crm:
+    build:
+      context: ./docker
+      dockerfile: litespeed.Dockerfile
+    restart: unless-stopped
+    expose:
+      - 80
+    ports:
+      - 7080:7080
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      VIRTUAL_HOST: ${DOMAIN:?Missing DOMAIN}
+      VIRTUAL_PATH: /
+      LETSENCRYPT_HOST: ${DOMAIN}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+      DEBUG: ${DEBUG:-false}
+    networks:
+      - network
+      - nginx-proxy
+    volumes:
+      - ./:/var/www/vhosts/localhost/html
+  phpmyadmin:
+    depends_on:
+      - mysql
+    image: phpmyadmin:latest
+    restart: unless-stopped
+    expose:
+      - "80"
+    environment:
+      PMA_HOST: mysql
+      PMA_ABSOLUTE_URI: https://${DOMAIN:?Missing DOMAIN}/phpmyadmin/
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD?:Missing MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: perfex
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD?:Missing MYSQL_PASSWORD}
+      VIRTUAL_HOST: ${DOMAIN}
+      VIRTUAL_PATH: /phpmyadmin
+      VIRTUAL_DEST: /
+      LETSENCRYPT_HOST: ${DOMAIN}
+      LETSENCRYPT_EMAIL: $LETSENCRYPT_EMAIL
+      DEBUG: ${DEBUG:-false}
+    networks:
+      - network
+      - nginx-proxy
+
+networks:
+  network:
+  nginx-proxy:
+    name: nginx-proxy
+    external: true
