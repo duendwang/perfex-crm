@@ -27,8 +27,8 @@ services:
     restart: unless-stopped
     expose:
       - 80
-    ports:
-      - 7080:7080
+    #ports:
+    #  - 7080:7080
     depends_on:
       mysql:
         condition: service_healthy
@@ -38,9 +38,14 @@ services:
       LETSENCRYPT_HOST: ${DOMAIN}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
       DEBUG: ${DEBUG:-false}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.perfex.entrypoints=websecure"
+      - "traefik.http.routers.perfex.rule=Host(`$DOMAIN`)"
+      - "traefik.http.routers.perfex.tls.certresolver=http-challenge"
     networks:
       - network
-      - nginx-proxy
+      - traefik-proxy
     volumes:
       - ./:/var/www/vhosts/localhost/html
   phpmyadmin:
@@ -62,12 +67,17 @@ services:
       LETSENCRYPT_HOST: ${DOMAIN}
       LETSENCRYPT_EMAIL: $LETSENCRYPT_EMAIL
       DEBUG: ${DEBUG:-false}
+    label:
+      - "traefik.enable=true"
+      - "traefik.http.routers.matomo-phpmyadmin.entrypoints=websecure"
+      - "traefik.http.routers.matomo-phpmyadmin.rule=Host(`$DOMAIN`) and Path(`\phpmyadmin`)"
+      - "traefik.http.routers.matomo-phpmyadmin.tls.certresolver=http-challenge"
     networks:
       - network
-      - nginx-proxy
+      - traefik-proxy
 
 networks:
   network:
-  nginx-proxy:
-    name: nginx-proxy
+  traefik-proxy:
+    name: traefik-proxy
     external: true
