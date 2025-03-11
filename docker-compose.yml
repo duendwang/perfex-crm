@@ -33,11 +33,6 @@ services:
       mysql:
         condition: service_healthy
     environment:
-      VIRTUAL_HOST: ${DOMAIN:?Missing DOMAIN}
-      VIRTUAL_PATH: /
-      LETSENCRYPT_HOST: ${DOMAIN}
-      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-      DEBUG: ${DEBUG:-false}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.perfex.entrypoints=websecure"
@@ -61,12 +56,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD?:Missing MYSQL_ROOT_PASSWORD}
       MYSQL_USER: perfex
       MYSQL_PASSWORD: ${MYSQL_PASSWORD?:Missing MYSQL_PASSWORD}
-      VIRTUAL_HOST: ${DOMAIN}
-      VIRTUAL_PATH: /phpmyadmin
-      VIRTUAL_DEST: /
-      LETSENCRYPT_HOST: ${DOMAIN}
-      LETSENCRYPT_EMAIL: $LETSENCRYPT_EMAIL
-      DEBUG: ${DEBUG:-false}
     label:
       - "traefik.enable=true"
       - "traefik.http.routers.matomo-phpmyadmin.entrypoints=websecure"
