@@ -57,9 +57,9 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD?:Missing MYSQL_PASSWORD}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.matomo-phpmyadmin.entrypoints=websecure"
-      - "traefik.http.routers.matomo-phpmyadmin.rule=Host(`$DOMAIN`) and PathPrefix(`/phpmyadmin`)"
-      - "traefik.http.routers.matomo-phpmyadmin.tls.certresolver=http-challenge"
+      - "traefik.http.routers.perfex-phpmyadmin.entrypoints=websecure"
+      - "traefik.http.routers.perfex-phpmyadmin.rule=Host(`$DOMAIN`) and PathPrefix(`/phpmyadmin`)"
+      - "traefik.http.routers.perfex-phpmyadmin.tls.certresolver=http-challenge"
     networks:
       - network
       - traefik-proxy
