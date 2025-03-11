@@ -31,7 +31,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    environment:
+#    environment:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.perfex.entrypoints=websecure"
@@ -55,10 +55,10 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD?:Missing MYSQL_ROOT_PASSWORD}
       MYSQL_USER: perfex
       MYSQL_PASSWORD: ${MYSQL_PASSWORD?:Missing MYSQL_PASSWORD}
-    label:
+    labels:
       - "traefik.enable=true"
       - "traefik.http.routers.matomo-phpmyadmin.entrypoints=websecure"
-      - "traefik.http.routers.matomo-phpmyadmin.rule=Host(`$DOMAIN`) and Path(`\phpmyadmin`)"
+      - "traefik.http.routers.matomo-phpmyadmin.rule=Host(`$DOMAIN`) and PathPrefix(`/phpmyadmin`)"
       - "traefik.http.routers.matomo-phpmyadmin.tls.certresolver=http-challenge"
     networks:
       - network
