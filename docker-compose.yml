@@ -2,12 +2,8 @@ services:
   mysql:
     image: mysql:8.0
     restart: unless-stopped
-    user: ${PUID:-1000}:${PGID:-1000}
     security_opt:
       - "no-new-privileges:true"
-    cap_drop:
-      - SETUID
-      - SETGID
     expose:
       - 3306
     environment:
@@ -18,7 +14,7 @@ services:
     networks:
       - network
     volumes:
-      - ./data:/var/lib/mysql
+      - ./data/mysql:/var/lib/mysql
     command: --authentication-policy=mysql_native_password
     healthcheck:
       test: "/usr/bin/mysql --user=root --password=\"${MYSQL_ROOT_PASSWORD}\" --execute \"SHOW DATABASES;\""
@@ -30,12 +26,8 @@ services:
       context: ./docker
       dockerfile: litespeed.Dockerfile
     restart: unless-stopped
-    user: ${PUID:-1000}:${PGID:-1000}
     security_opt:
       - "no-new-privileges:true"
-    cap_drop:
-      - SETUID
-      - SETGID
     expose:
       - 80
     #ports:
@@ -59,12 +51,8 @@ services:
       - mysql
     image: phpmyadmin:latest
     restart: unless-stopped
-    user: ${PUID:-1000}:${PGID:-1000}
     security_opt:
       - "no-new-privileges:true"
-    cap_drop:
-      - SETUID
-      - SETGID
     expose:
       - "80"
     environment:
